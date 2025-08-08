@@ -1,13 +1,19 @@
 const express = require("express");
 const scrapearCompuTrabajo = require("./scrapearCompuTrabajo.js");
-const app = express();
-const PORT = 3000;
+let fetch;
+try {
+  fetch = (...args) => import("node-fetch").then((mod) => mod.default(...args));
+} catch (e) {
+  console.error("No se pudo cargar node-fetch:", e);
+}
 const cors = require("cors");
 
-app.use(cors());
+const app = express();
+const port = process.env.PORT || 3000;
 
+app.use(cors());
 app.use(express.json());
-app.use(express.static("public")); // si tu HTML está ahí
+app.use(express.static("public"));
 app.use(express.urlencoded({ extended: true }));
 app.use("/output", express.static("output"));
 
@@ -58,6 +64,13 @@ app.get("/geocode", async (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`Servidor escuchando en http://localhost:${PORT}`);
+app.get("/", (req, res) => {
+  const htmlresponse = `
+  <h1>API de back-computrabajo</h1>
+  <p>Usa el endpoint <code>/buscar</code> con método POST y un cuerpo JSON como este:</p>`;
+  res.send(htmlresponse);
+});
+
+app.listen(port, () => {
+  console.log(`Servidor escuchando en http://localhost:${port}`);
 });
